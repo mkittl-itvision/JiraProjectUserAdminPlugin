@@ -1,0 +1,167 @@
+#enable_html_escaping()
+<div class="project-config-webpanel-content project-config-icon48-people">
+	## Variable declaration
+	#set ($okToSend = true)
+	#set ($adminGroupName = "jira-firmenadministrator")
+	#set ($adminRoleName = "Firmen-Administrator")
+	#set ($craftsmanGroupName = "jira-handwerker")
+	#set ($craftsmanRoleName = "Handwerker")
+	
+	## Context Parameter from Request
+	#set ($newUser  = $jiraHelper.getRequest().getParameter("newUserName"))
+	#set ($newPass  = $jiraHelper.getRequest().getParameter("newPassword"))
+	#set ($newEmail = $jiraHelper.getRequest().getParameter("newEmail"))
+	#set ($newDisp  = $jiraHelper.getRequest().getParameter("newDisplayName"))
+	#set ($selGroup = $jiraHelper.getRequest().getParameter("selectGroup"))
+	#set ($delAdmin = $jiraHelper.getRequest().getParameterValues("deleteAdminCheck"))
+	#set ($delUser  = $jiraHelper.getRequest().getParameterValues("deleteUserCheck"))
+	
+	## Project variable
+	#set ($projKey  = $jiraHelper.getProject().get("originalkey"))
+	
+	## delete user from previous call
+	#if ($delAdmin)
+		$adminBean.deleteUsers($delAdmin, $adminRoleName, $projKey)
+	#end
+	#if ($delUser)
+		$adminBean.deleteUsers($delUser, $craftsmanRoleName, $projKey)
+	#end
+	
+	## show error messages if some fields got forgotten to fill in
+	<p>
+		#set ($allFieldsSet = ($newUser && $newPass && $newEmail && $newDisp))
+		#if ($newUser == "")
+			#set ($okToSend = false)
+		    <span style="color: red">Der Benutername ist nicht gesetzt!</span> <br/>
+		#end
+		#if ($newPass == "")
+			#set ($okToSend = false)
+		    <span style="color: red">Das Passwort ist nicht gesetzt!</span> <br/>
+		#end
+		#if ($newEmail == "")
+			#set ($okToSend = false)
+		    <span style="color: red">Die E-Mail ist nicht gesetzt!</span> <br/>
+		#end
+		#if ($newDisp == "")
+			#set ($okToSend = false)
+		    <span style="color: red">Der Anzeigename ist nicht gesetzt!</span> <br/>
+		#end
+		#if ($allFieldsSet && $okToSend)
+		    
+		    ## calculate role from group
+			#if ($selGroup == $craftsmanGroupName)
+				#set ($roleName = $craftsmanRoleName)
+			#else 
+				#set ($roleName = $adminRoleName)
+			#end
+			
+			## create user
+			$adminBean.createNewUser($newUser, $newPass, $newEmail, $newDisp, $selGroup, $roleName, $projKey)
+		    #set ($errMsg = $adminBean.getErrorMessage())
+		    
+		    ## show error message
+		    #if ($errMsg)
+		    	<span style="color: red">$errMsg</span> <br/>
+		    
+		    ## show success message and delete fields
+		    #else
+		    	<span style="color: green">Der Benutzer wurde erfolgreich erstellt</span> <br/>
+			    #set ($newUser  = "")
+			    #set ($newPass  = "")
+			    #set ($newEmail = "")
+			    #set ($newDisp  = "")	    
+		    #end
+		#end
+	</p>
+	
+	## create new user form
+	<form name="projectUserAdminForm">
+		<table border="0">
+			<tr>
+				<td>
+					<label>Benutzername</label>
+				</td>
+				<td>
+					#if ($newUser)
+						<input name="newUserName" type="text" value="$newUser"/><br/>
+					#else 
+						<input name="newUserName" type="text" /><br/>
+					#end
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label>Passwort</label>
+				</td>
+				<td>
+					#if ($newPass) 
+						<input name="newPassword" type="password" value="$newPass"/><br/>
+					#else
+						<input name="newPassword" type="password" /><br/>
+					#end
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label>e-mail</label>
+				</td>
+				<td>
+					#if ($newEmail)
+						<input name="newEmail" type="text" value="$newEmail"/> <br/>
+					#else
+						<input name="newEmail" type="text" /> <br/>
+					#end
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label>Anzeigename</label>
+				</td>
+				<td>
+					#if ($newDisp)
+						<input name="newDisplayName" type="text" value="$newDisp" /> <br/><br/>
+					#else
+						<input name="newDisplayName" type="text" /> <br/>
+					#end
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<input type="radio" name="selectGroup" id="hw" value=$craftsmanGroupName checked /><label for="hw"> Handwerker</label> <br />
+					<input type="radio" name="selectGroup" id="fa" value=$adminGroupName /><label for="fa"> Firmenadministrator</label> <br /><br />
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<button type="button" name="adminFormSubmit" onclick="document.projectUserAdminForm.submit()">Erstellen</button>
+				</td>
+			</tr> 
+		</table>	 
+	</form>
+	
+	## delete user form
+	<form name="projectDeleteUserForm">
+		#set ($administrators = $adminBean.getUsersForRole($adminRoleName, $projKey))
+		#set ($craftsman = $adminBean.getUsersForRole($craftsmanRoleName, $projKey))
+		<br/>
+		#if ($administrators.size() > 0)
+			<b>Firmenadministratoren</b><br/>
+		#end
+		#foreach ($adminKey in $administrators.keySet())
+			<input type="checkbox" id="$adminKey" name="deleteAdminCheck" value="$adminKey" />
+			<label for="$adminKey">$administrators.get($adminKey)</label> <br/>
+		#end
+		#if ($craftsman.size() > 0)
+			<br/>
+			<b>Handwerker</b><br/>
+		#end
+		#foreach ($userKey in $craftsman.keySet())
+			<input type="checkbox" id="$userKey" name="deleteUserCheck" value="$userKey" />
+			<label for="$userKey">$craftsman.get($userKey)</label> <br/>
+		#end
+		#if ($administrators.size() > 0 || $craftsman.size() > 0)
+			<br/>
+			<button type="button" name="userDeleteSubmit" onclick="document.projectDeleteUserForm.submit()">Löschen</button>
+		#end
+	</form>
+</div>

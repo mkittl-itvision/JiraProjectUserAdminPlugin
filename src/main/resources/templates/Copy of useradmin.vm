@@ -1,0 +1,22 @@
+#enable_html_escaping()
+<div class="project-config-webpanel-content project-config-icon48-people">
+<p>
+	#set ($project = $jiraHelper.getProject())
+	#foreach ($item in $project.keySet())
+		$item ----- $project.get($item)<br/>
+	#end
+</p>
+<p>
+	$contextParams <br/><br/>
+	$allUsers <br/><br/>
+	$adminBean.getTestString() <br/><br/>
+	$adminBean.getAllUser() <br/><br/>
+	$jiraHelper.getRequest().getParameter("prename") <br/><br/>
+	#if ($jiraHelper.getRequest().getParameter("name"))
+		$jiraHelper.getRequest().getParameter("name")
+	#else
+	    not set
+	#end
+	##$adminBean.createNewUser() <br/><br/>
+</p>
+</div>
