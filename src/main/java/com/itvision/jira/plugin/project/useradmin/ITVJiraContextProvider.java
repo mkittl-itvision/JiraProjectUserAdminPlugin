@@ -10,6 +10,16 @@ import com.atlassian.jira.plugin.webfragment.contextproviders.AbstractJiraContex
 import com.atlassian.jira.plugin.webfragment.model.JiraHelper;
 import com.atlassian.jira.user.UserUtils;
 
+/**
+ * The ContextProvider is mapped to the Project Admin User Panel in
+ * the atlassian-plugin.xml (resources)<br/>
+ * The getContextMap exposes some objects to the view page (templates/useradmin.vm)
+ * and makes the applicationProperties accessable to the velocity skript (useradmin.vm)<br/>
+ * The ITVProjectUserAdminBean with most of the method calls is also handed over to vm
+ * by the returned map.
+ * @author itv kit
+ *
+ */
 @SuppressWarnings("unchecked")
 public class ITVJiraContextProvider extends AbstractJiraContextProvider {
 

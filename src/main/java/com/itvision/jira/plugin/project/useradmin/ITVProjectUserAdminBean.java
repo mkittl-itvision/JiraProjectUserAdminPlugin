@@ -24,6 +24,13 @@ import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.UserUtils;
 import com.atlassian.jira.util.SimpleErrorCollection;
 
+/**
+ * ITVProjectUserAdminBean is kind of a Backing bean and provides methods
+ * to be called in useradmin.vm script.<br/>
+ * This class is handed over to the script using the ITVJiraContextProvider
+ * @author itv kit
+ *
+ */
 public class ITVProjectUserAdminBean {
 
 	private String errorMessage = "";
@@ -31,18 +38,32 @@ public class ITVProjectUserAdminBean {
 	public ITVProjectUserAdminBean() {
 	}
 	
+	/* Please delete me again */
 	public String getTestString() {
 		return "To test if a bean is recognized";
 	}
 	
+	/* Please delete me again */
 	public Collection<User> getAllUser() {
 		return UserUtils.getAllUsers();
 	}
 	
+	/**
+	 * useradmin.vm uses this method to determine if an error has occurred
+	 * and shows this message
+	 * @return error message or null
+	 */
 	public String getErrorMessage() {
 		return errorMessage;
 	}
 	
+	/**
+	 * returns a list of users that are contained in a specific role.<br>
+	 * useradmin.vm builds the list with the checkboxes with this list
+	 * @param roleName the role name like Handwerker
+	 * @param projectName the project name that useradmin.vm finds via jiraHelper
+	 * @return a map that maps the user key to the display name
+	 */
 	public Map<String, String> getUsersForRole(String roleName, String projectName) {
 		Map<String, String> nameMMap = new HashMap<String, String>();
 		
@@ -60,6 +81,14 @@ public class ITVProjectUserAdminBean {
 		return nameMMap;
 	}
 	
+	/**
+	 * deletes users that are contained in the list, the role within the project.<br/>
+	 * The list is returned in aseradmin.vm form the request parameter values. <br/>
+	 * Only user role actors are deleted! It does not care about group role actors!<br> 
+	 * @param userList the list with the user keys
+	 * @param roleName the role name like Handwerker
+	 * @param projectName the project name found in the useradmin.vm
+	 */
 	public void deleteUsers(String[] userList, String roleName, String projectName) {
 		if (userList != null) {
 			Collection<String> aUserCollection = Arrays.asList(userList);
@@ -78,6 +107,19 @@ public class ITVProjectUserAdminBean {
 		}
 	}
 		
+	/**
+	 * Creates a user that is applied to the correct group (defaults are deleted before) and
+	 * the correct role.<br/>
+	 * If something goes wrong (e.g. user already exists) only the errorMessage is set, otherwise
+	 * the errorMessage is null showing that the user creation succeeded.
+	 * @param userName the login user name
+	 * @param password the login password
+	 * @param eMail the email address
+	 * @param displayName the human readable displayed name
+	 * @param groupName the group it should belong to (only one group is possible!)
+	 * @param roleName the role like Handwerker the new user should be assigned to
+	 * @param projectKey the project key from useradmin.vm
+	 */
 	public void createNewUser(String userName, String password, String eMail, String displayName, 
 			String groupName, String roleName, String projectKey) {
 		if (ComponentAccessor.getUserUtil() != null) {
