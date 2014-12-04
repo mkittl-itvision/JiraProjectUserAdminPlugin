@@ -149,7 +149,7 @@
 		#end
 		#foreach ($adminKey in $administrators.keySet())
 			<input type="checkbox" id="$adminKey" name="deleteAdminCheck" value="$adminKey" />
-			<label for="$adminKey">$administrators.get($adminKey)</label> <br/>
+			<label for="$adminKey">$adminKey ($administrators.get($adminKey))</label> <br/>
 		#end
 		#if ($craftsman.size() > 0)
 			<br/>
@@ -157,7 +157,7 @@
 		#end
 		#foreach ($userKey in $craftsman.keySet())
 			<input type="checkbox" id="$userKey" name="deleteUserCheck" value="$userKey" />
-			<label for="$userKey">$craftsman.get($userKey)</label> <br/>
+			<label for="$userKey">$userKey ($craftsman.get($userKey))</label> <br/>
 		#end
 		#if ($administrators.size() > 0 || $craftsman.size() > 0)
 			<br/>
